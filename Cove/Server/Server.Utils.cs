@@ -279,10 +279,8 @@ namespace Cove.Server
         void updatePlayercount()
         {
             string serverName = $"{ServerName}";
-            //gameLobby.SetData("lobby_name", serverName); // not sure what this dose rn
-            //gameLobby.SetData("name", serverName);
 
-            //Console.Title = $"Cove Dedicated Server, {gameLobby.MemberCount - 1} players!";
+            Console.Title = $"Cove Dedicated Server, {AllPlayers.Count} players!";
 
             SteamMatchmaking.SetLobbyData(SteamLobby, "lobby_name", serverName);
             SteamMatchmaking.SetLobbyData(SteamLobby, "name", serverName);
