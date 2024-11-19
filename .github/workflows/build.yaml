@@ -65,7 +65,7 @@ jobs:
 
       # Step 5: Copy the native library
       - name: Copy libsteam_api.so to publish folder
-        run: cp ./NativeLibraries/linux64/libsteam_api.so ./publish/
+        run: cp ./Cove/NativeLibraries/linux64/libsteam_api.so ./publish/
 
       # Step 6: Zip the Linux publish folder
       - name: Zip the Linux publish folder
