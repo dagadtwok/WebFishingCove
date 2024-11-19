@@ -1,5 +1,4 @@
 ﻿using Steamworks;
-using Steamworks.Data;
 using Cove.Server.Plugins;
 using Cove.GodotFormat;
 using Cove.Server.Actor;
@@ -27,7 +26,7 @@ namespace Cove.Server
         public bool shouldSpawnPortal = true;
 
         List<string> Admins = new();
-        public Lobby gameLobby = new Lobby();
+        public CSteamID Lobby;
 
         public List<WFPlayer> AllPlayers = new();
         public List<WFActor> serverOwnedInstances = new();
@@ -160,13 +159,9 @@ namespace Cove.Server
                 Console.WriteLine("Created plugins folder!");
             }
 
-            try
+            if (!SteamAPI.Init())
             {
-                SteamClient.Init(3146520, false);
-            }
-            catch (SystemException e)
-            {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.");
                 return;
             }
 
@@ -211,90 +206,98 @@ namespace Cove.Server
             services["host_spawn_metal"] = hostSpawnMetalService;
             services["hls_server_list"] = hlsServerList;
 
-            SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
-            void OnLobbyCreated(Result result, Lobby Lobby)
+            Callback<LobbyCreated_t>.Create((LobbyCreated_t param) =>
             {
-                Lobby.SetJoinable(true); // make the server joinable to players!
-                Lobby.SetData("ref", "webfishing_gamelobby");
-                Lobby.SetData("version", WebFishingGameVersion);
-                Lobby.SetData("code", LobbyCode);
-                Lobby.SetData("type", codeOnly ? "code_only" : "public");
-                Lobby.SetData("public", "true");
-                Lobby.SetData("banned_players", "");
-                Lobby.SetData("age_limit", ageRestricted ? "true" : "false");
-                Lobby.SetData("cap", MaxPlayers.ToString());
-
+                Lobby = new CSteamID(param.m_ulSteamIDLobby);
+                SteamMatchmaking.SetLobbyData(Lobby, "ref", "webfishing_gamelobby");
+                SteamMatchmaking.SetLobbyData(Lobby, "version", WebFishingGameVersion);
+                SteamMatchmaking.SetLobbyData(Lobby, "code", LobbyCode);
+                SteamMatchmaking.SetLobbyData(Lobby, "type", codeOnly ? "code_only" : "public");
+                SteamMatchmaking.SetLobbyData(Lobby, "public", "true");
+                SteamMatchmaking.SetLobbyData(Lobby, "banned_players", "");
+                SteamMatchmaking.SetLobbyData(Lobby, "age_limit", ageRestricted ? "true" : "false");
+                SteamMatchmaking.SetLobbyData(Lobby, "cap", MaxPlayers.ToString());
                 SteamNetworking.AllowP2PPacketRelay(true);
-
-                Lobby.SetData("server_browser_value", "0"); // i have no idea!
-
+                SteamMatchmaking.SetLobbyData(Lobby, "server_browser_value", "0");
                 Console.WriteLine("Lobby Created!");
                 Console.Write("Lobby Code: ");
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine(Lobby.GetData("code"));
+                Console.WriteLine(LobbyCode);
                 Console.ResetColor();
-
-                gameLobby = Lobby;
-
                 // set the player count in the title
                 updatePlayercount();
-            }
+            });
 
-            SteamMatchmaking.OnLobbyMemberJoined += void (Lobby Lobby, Friend userJoining) =>
+            Callback<LobbyChatUpdate_t>.Create((LobbyChatUpdate_t param) =>
             {
-                Console.WriteLine($"{userJoining.Name} [{userJoining.Id}] has joined the game!");
-                updatePlayercount();
+                CSteamID lobbyID = new CSteamID(param.m_ulSteamIDLobby);
+                if (lobbyID.m_SteamID != Lobby.m_SteamID)
+                    return;
 
-                WFPlayer newPlayer = new WFPlayer(userJoining.Id, userJoining.Name);
-                AllPlayers.Add(newPlayer);
+                CSteamID userChanged = new CSteamID(param.m_ulSteamIDUserChanged);
+                CSteamID userMakingChange = new CSteamID(param.m_ulSteamIDMakingChange);
 
-                Console.WriteLine($"{userJoining.Name} has been assigned the fisherID: {newPlayer.FisherID}");
-
-                foreach (PluginInstance plugin in loadedPlugins)
+                EChatMemberStateChange stateChange = (EChatMemberStateChange)param.m_rgfChatMemberStateChange;
+                if (stateChange.HasFlag(EChatMemberStateChange.k_EChatMemberStateChangeEntered))
                 {
-                    plugin.plugin.onPlayerJoin(newPlayer);
+                    string Username = SteamFriends.GetFriendPersonaName(userChanged);
+
+                    Console.WriteLine($"{Username} [{userChanged.m_SteamID}] has joined the game!");
+                    updatePlayercount();
+
+                    WFPlayer newPlayer = new WFPlayer(userChanged, Username);
+                    AllPlayers.Add(newPlayer);
+
+                    //Console.WriteLine($"{Username} has been assigned the fisherID: {newPlayer.FisherID}");
+
+                    foreach (PluginInstance plugin in loadedPlugins)
+                    {
+                        plugin.plugin.onPlayerJoin(newPlayer);
+                    }
+
                 }
 
-            };
-
-            SteamMatchmaking.OnLobbyMemberLeave += void (Lobby Lobby, Friend userLeaving) =>
-            {
-                Console.WriteLine($"{userLeaving.Name} [{userLeaving.Id}] has left the game!");
-                updatePlayercount();
-
-                foreach (var player in AllPlayers)
+                if (stateChange.HasFlag(EChatMemberStateChange.k_EChatMemberStateChangeLeft) || stateChange.HasFlag(EChatMemberStateChange.k_EChatMemberStateChangeDisconnected))
                 {
-                    if (player.SteamId == userLeaving.Id)
-                    {
 
-                        foreach (PluginInstance plugin in loadedPlugins)
+                    string Username = SteamFriends.GetFriendPersonaName(userChanged);
+
+                    Console.WriteLine($"{Username} [{userChanged.m_SteamID}] has left the game!");
+                    updatePlayercount();
+
+                    foreach (var player in AllPlayers)
+                    {
+                        if (player.SteamId.m_SteamID == userChanged.m_SteamID)
                         {
-                            plugin.plugin.onPlayerLeave(player);
+
+                            foreach (PluginInstance plugin in loadedPlugins)
+                            {
+                                plugin.plugin.onPlayerLeave(player);
+                            }
+
+                            AllPlayers.Remove(player);
+                            Console.WriteLine($"{Username} has been removed!");
                         }
-
-                        AllPlayers.Remove(player);
-                        Console.WriteLine($"{userLeaving.Name} has been removed!");
                     }
                 }
-            };
+            });
 
-            SteamNetworking.OnP2PSessionRequest += void (SteamId id) =>
+            Callback<P2PSessionRequest_t> callback = Callback<P2PSessionRequest_t>.Create((P2PSessionRequest_t param) =>
             {
-                foreach (Friend user in gameLobby.Members)
+
+                // get all members in the lobby
+                CSteamID[] members = getAllPlayers();
+                if (!members.Contains(param.m_steamIDRemote))
                 {
-                    if (user.Id == id.Value)
-                    {
-                        Console.WriteLine($"{user.Name} has connected via P2P");
-                        SteamNetworking.AcceptP2PSessionWithUser(id);
-                        return;
-                    }
+                    Console.WriteLine($"Got P2P request from {param.m_steamIDRemote}, but they are not in the lobby!");
+                    return;
                 }
 
-                Console.WriteLine($"Got P2P request from {id.Value}, but they are not in the lobby!");
-            };
+                SteamNetworking.AcceptP2PSessionWithUser(param.m_steamIDRemote);
+            });
 
             // create the server
-            SteamMatchmaking.CreateLobbyAsync(maxMembers: MaxPlayers);
+            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, MaxPlayers);
         }
         private bool getBoolFromString(string str)
         {
@@ -316,7 +319,7 @@ namespace Cove.Server
         {
             while (true)
             {
-                SteamClient.RunCallbacks();
+                SteamAPI.RunCallbacks();
             }
         }
 
@@ -326,15 +329,20 @@ namespace Cove.Server
             {
                 try
                 {
+                    // OnNetworkPacket(packet.Value);
                     for (int i = 0; i < 6; i++)
                     {
+                        uint packetSize = 0;
                         // we are going to check if there are any incoming net packets!
-                        if (SteamNetworking.IsP2PPacketAvailable(channel: i))
+                        if (SteamNetworking.IsP2PPacketAvailable(out packetSize, nChannel: i))
                         {
-                            Steamworks.Data.P2Packet? packet = SteamNetworking.ReadP2PPacket(channel: i);
-                            if (packet != null)
+                            byte[] packet = new byte[packetSize];
+                            uint bytesRead = 0;
+                            CSteamID sender;
+
+                            if (SteamNetworking.ReadP2PPacket(packet, packetSize, out bytesRead, out sender, nChannel: i))
                             {
-                                OnNetworkPacket(packet.Value);
+                                OnNetworkPacket(packet, sender);
                             }
                         }
                     }
@@ -347,7 +355,7 @@ namespace Cove.Server
             }
         }
 
-        void OnPlayerChat(string message, SteamId id)
+        void OnPlayerChat(string message, CSteamID id)
         {
 
             WFPlayer sender = AllPlayers.Find(p => p.SteamId == id);

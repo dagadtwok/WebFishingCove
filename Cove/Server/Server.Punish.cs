@@ -11,7 +11,7 @@ namespace Cove.Server
     public partial class CoveServer
     {
 
-        public void banPlayer(SteamId id, bool saveToFile = false)
+        public void banPlayer(CSteamID id, bool saveToFile = false)
         {
             Dictionary<string, object> banPacket = new();
             banPacket["type"] = "ban";
@@ -21,17 +21,17 @@ namespace Cove.Server
             if (saveToFile)
                 writeToBansFile(id);
 
-            sendBlacklistPacketToAll(id.Value.ToString());
+            sendBlacklistPacketToAll(id.m_SteamID.ToString());
         }
 
-        public bool isPlayerBanned(SteamId id)
+        public bool isPlayerBanned(CSteamID id)
         {
             string fileDir = $"{AppDomain.CurrentDomain.BaseDirectory}bans.txt";
 
             string[] fileContent = File.ReadAllLines(fileDir);
             foreach (string line in fileContent)
             {
-                if (line.Contains(id.Value.ToString()))
+                if (line.Contains(id.m_SteamID.ToString()))
                 {
                     return true;
                 }
@@ -40,14 +40,14 @@ namespace Cove.Server
             return false;
         }
 
-        private void writeToBansFile(SteamId id)
+        private void writeToBansFile(CSteamID id)
         {
             string fileDir = $"{AppDomain.CurrentDomain.BaseDirectory}bans.txt";
             WFPlayer player = AllPlayers.Find(p => p.SteamId == id);
-            File.WriteAllText(fileDir, $"\n{id.Value} #{player.FisherName}");
+            File.WriteAllText(fileDir, $"\n{id.m_SteamID} #{player.FisherName}");
         }
 
-        public void kickPlayer(SteamId id)
+        public void kickPlayer(CSteamID id)
         {
             Dictionary<string, object> kickPacket = new();
             kickPacket["type"] = "kick";

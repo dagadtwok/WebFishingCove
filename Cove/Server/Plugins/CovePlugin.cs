@@ -23,55 +23,55 @@ namespace Cove.Server.Plugins
         // triggered when a player leaves the server
         public virtual void onPlayerLeave(WFPlayer player) { }
 
-        public WFPlayer[] getAllPlayers()
+        public WFPlayer[] GetAllPlayers()
         {
             return parentServer.AllPlayers.ToArray();
         }
 
-        public void sendPlayerChatMessage(WFPlayer receiver, string message, string hexColor = "ffffff")
+        public void SendPlayerChatMessage(WFPlayer receiver, string message, string hexColor = "ffffff")
         {
             // remove a # incase its given
             parentServer.messagePlayer(message, receiver.SteamId, hexColor.Replace("#", ""));
         }
 
-        public void sendGlobalChatMessage(string message, string hexColor = "ffffff")
+        public void SendGlobalChatMessage(string message, string hexColor = "ffffff")
         {
             parentServer.messageGlobal(message, hexColor.Replace("#", ""));
         }
 
-        public WFActor[] getAllServerActors()
+        public WFActor[] GetAllServerActors()
         {
             return parentServer.serverOwnedInstances.ToArray();
         }
 
-        public WFActor? getActorFromID(int id)
+        public WFActor? GetActorFromID(int id)
         {
             return parentServer.serverOwnedInstances.Find(a => a.InstanceID == id);
         }
 
         // please make sure you use the correct actorname or the game freaks out!
-        public WFActor spawnServerActor(string actorType)
+        public WFActor SpawnServerActor(string actorType)
         {
             return parentServer.spawnGenericActor(actorType);
         }
 
-        public void removeServerActor(WFActor actor)
+        public void RemoveServerActor(WFActor actor)
         {
             parentServer.removeServerActor(actor);
         }
 
         // i on god dont know what this dose to the actual actor but it works in game, so if you nee this its here
-        public void setServerActorZone(WFActor actor, string zoneName, int zoneOwner)
+        public void SetServerActorZone(WFActor actor, string zoneName, int zoneOwner)
         {
             parentServer.setActorZone(actor, zoneName, zoneOwner);
         }
 
-        public void kickPlayer(WFPlayer player)
+        public void KickPlayer(WFPlayer player)
         {
             parentServer.kickPlayer(player.SteamId);
         }
 
-        public void banPlayer(WFPlayer player)
+        public void BanPlayer(WFPlayer player)
         {
             if (parentServer.isPlayerBanned(player.SteamId))
             {
@@ -82,22 +82,22 @@ namespace Cove.Server.Plugins
             }
         }
 
-        public void log(string message)
+        public void Log(string message)
         {
             parentServer.printPluginLog(message, this);
         }
 
-        public bool isPlayerAdmin(WFPlayer player)
+        public bool IsPlayerAdmin(WFPlayer player)
         {
             return parentServer.isPlayerAdmin(player.SteamId);
         }
 
-        public void sendPacketToPlayer(Dictionary<string, object> packet, WFPlayer player)
+        public void SendPacketToPlayer(Dictionary<string, object> packet, WFPlayer player)
         {
             parentServer.sendPacketToPlayer(packet, player.SteamId);
         }
 
-        public void sendPacketToAll(Dictionary<string, object> packet)
+        public void SendPacketToAll(Dictionary<string, object> packet)
         {
             parentServer.sendPacketToPlayers(packet);
         }

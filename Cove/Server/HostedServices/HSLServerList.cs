@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Steamworks;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
@@ -55,7 +56,7 @@ namespace Cove.Server.HostedServices
             {
                 var requestBody = new RequestBody
                 {
-                    host = Steamworks.SteamClient.Name,
+                    host = SteamFriends.GetPersonaName(),
                     lobby_code = server.LobbyCode,
                     version = server.WebFishingGameVersion,
                     lobby_type = server.codeOnly ? "Code Only" : "Public",
@@ -64,8 +65,8 @@ namespace Cove.Server.HostedServices
                     map = "default", // make this changeable later (will add map id to server config)
                     title = server.ServerName,
                     mods = new string[] { }, // again make this changeable later
-                    country = Steamworks.SteamUtils.IpCountry,
-                    current_players = server.AllPlayers.Count,
+                    country = SteamUtils.GetIPCountry(), // get the country of the server
+                    current_players = server.getAllPlayers().Count() - 1 // -1 because the host is not included in the player count
                 };
 
                 JsonSerializerOptions options = new JsonSerializerOptions
@@ -76,19 +77,26 @@ namespace Cove.Server.HostedServices
                 string jsonBody = JsonSerializer.Serialize(requestBody, options);
                 HttpContent content = new StringContent(jsonBody, System.Text.Encoding.UTF8, "application/json");
 
-                // send a heartbeat to the HLS server list
-                HttpResponseMessage response = client.PostAsync(endpoint, content).Result;
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    _logger.LogInformation("Heartbeat sent to HLS server list.");
+                    // send a heartbeat to the HLS server list
+                    HttpResponseMessage response = client.PostAsync(endpoint, content).Result;
+                    if (response.IsSuccessStatusCode)
+                    {
+                        _logger.LogInformation("Heartbeat sent to HLS server list.");
+                    }
+                    else
+                    {
+                        _logger.LogError("Failed to send heartbeat to HLS server list.");
+                        _logger.LogError(response.Content.ReadAsStringAsync().Result);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    _logger.LogError("Failed to send heartbeat to HLS server list.");
-                    _logger.LogError(response.Content.ReadAsStringAsync().Result);
+                    _logger.LogError(ex, "Failed to send heartbeat to HLS server list.");
                 }
-            }
 
+            }
         }
 
         // This method is called when the service is stopping.

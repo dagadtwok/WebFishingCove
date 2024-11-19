@@ -20,18 +20,33 @@ namespace Cove.Server
         public void sendPacketToPlayers(Dictionary<string, object> packet)
         {
             byte[] packetBytes = writePacket(packet);
-            // get all players in the lobby
-            foreach (Friend member in gameLobby.Members)
+            
+            foreach (CSteamID player in getAllPlayers())
             {
-                if (member.Id == SteamClient.SteamId.Value) continue;
-                SteamNetworking.SendP2PPacket(member.Id, packetBytes, nChannel: 2);
+                if (player == SteamUser.GetSteamID())
+                    continue;
+                
+                SteamNetworking.SendP2PPacket(player, packetBytes, (uint)packetBytes.Length, EP2PSend.k_EP2PSendReliable, nChannel: 2);
             }
         }
 
-        public void sendPacketToPlayer(Dictionary<string, object> packet, SteamId id)
+        public void sendPacketToPlayer(Dictionary<string, object> packet, CSteamID id)
         {
             byte[] packetBytes = writePacket(packet);
-            SteamNetworking.SendP2PPacket(id, packetBytes, nChannel: 2);
+            SteamNetworking.SendP2PPacket(id, packetBytes, (uint)packetBytes.Length, EP2PSend.k_EP2PSendReliable, nChannel: 2);
+        }
+
+        public CSteamID[] getAllPlayers()
+        {
+            int playerCount = SteamMatchmaking.GetNumLobbyMembers(Lobby);
+            CSteamID[] players = new CSteamID[playerCount];
+
+            for (int i = 0; i < playerCount; i++)
+            {
+                players[i] = SteamMatchmaking.GetLobbyMemberByIndex(Lobby, i);
+            }
+
+            return players;
         }
     }
 }

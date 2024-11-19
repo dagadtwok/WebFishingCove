@@ -20,7 +20,7 @@ namespace Cove.Server
                 {
                     Console.WriteLine($"Added {key} as admin!");
                     Admins.Add(key);
-                    WFPlayer player = AllPlayers.Find(p => p.SteamId.Value.ToString() == key);
+                    WFPlayer player = AllPlayers.Find(p => p.SteamId.m_SteamID.ToString() == key);
                     if (player != null)
                     {
                         messagePlayer("You are an admin on this server!", player.SteamId);
@@ -49,7 +49,7 @@ namespace Cove.Server
             instanceSpacePrams["zone"] = "main_zone";
             instanceSpacePrams["zone_owner"] = -1;
             instanceSpacePrams["actor_id"] = IId;
-            instanceSpacePrams["creator_id"] = (long)SteamClient.SteamId.Value;
+            instanceSpacePrams["creator_id"] = (long)SteamUser.GetSteamID().m_SteamID;
 
             sendPacketToPlayers(rainSpawnPacket); // spawn the rain!
             serverOwnedInstances.Add(new RainCloud(IId, pos));
@@ -118,7 +118,7 @@ namespace Cove.Server
             instanceSpacePrams["zone"] = "main_zone";
             instanceSpacePrams["zone_owner"] = -1;
             instanceSpacePrams["actor_id"] = IId;
-            instanceSpacePrams["creator_id"] = (long)SteamClient.SteamId.Value;
+            instanceSpacePrams["creator_id"] = (long)SteamUser.GetSteamID().m_SteamID;
 
             sendPacketToPlayers(spawnPacket);
 
@@ -140,7 +140,7 @@ namespace Cove.Server
             serverOwnedInstances.Remove(instance);
         }
 
-        private void sendPlayerAllServerActors(SteamId id)
+        private void sendPlayerAllServerActors(CSteamID id)
         {
             foreach (WFActor actor in serverOwnedInstances)
             {
@@ -156,13 +156,13 @@ namespace Cove.Server
                 instanceSpacePrams["zone"] = "main_zone";
                 instanceSpacePrams["zone_owner"] = -1;
                 instanceSpacePrams["actor_id"] = actor.InstanceID;
-                instanceSpacePrams["creator_id"] = (long)SteamClient.SteamId.Value;
+                instanceSpacePrams["creator_id"] = (long)SteamUser.GetSteamID().m_SteamID;
 
                 sendPacketToPlayer(spawnPacket, id);
             }
         }
 
-        public void sendBlacklistPacketToPlayer(string blacklistedSteamID, SteamId receiving)
+        public void sendBlacklistPacketToPlayer(string blacklistedSteamID, CSteamID receiving)
         {
             Dictionary<string, object> blacklistPacket = new();
             blacklistPacket["type"] = "force_disconnect_player";
@@ -179,7 +179,7 @@ namespace Cove.Server
         }
 
         // returns the letter id!
-        int SendLetter(SteamId to, SteamId from, string header, string body, string closing, string user)
+        int SendLetter(CSteamID to, CSteamID from, string header, string body, string closing, string user)
         {
 
             // dosent work atm
@@ -188,10 +188,10 @@ namespace Cove.Server
             // Crashes the game lmao
             Dictionary<string, object> letterPacket = new();
             letterPacket["type"] = "letter_received";
-            letterPacket["to"] = (string)to.Value.ToString();
+            letterPacket["to"] = (string)to.m_SteamID.ToString();
             Dictionary<string, object> data = new Dictionary<string, object>();
-            data["to"] = (string)to.Value.ToString();
-            data["from"] = (string)from.Value.ToString();
+            data["to"] = (string)to.m_SteamID.ToString();
+            data["from"] = (string)from.m_SteamID.ToString();
             data["header"] = header;
             data["body"] = body;
             data["closing"] = closing;
@@ -200,7 +200,8 @@ namespace Cove.Server
             data["items"] = new Dictionary<int, object>();
             letterPacket["data"] = data;
 
-            SteamNetworking.SendP2PPacket(to, writePacket(letterPacket), nChannel: 2);
+            //SteamNetworking.SendP2PPacket(to, writePacket(letterPacket), nChannel: 2);
+            sendPacketToPlayer(letterPacket, to);
 
             return (int)data["letter_id"];
         }
@@ -217,14 +218,14 @@ namespace Cove.Server
             chatPacket["zone_owner"] = 1;
 
             // get all players in the lobby
-            foreach (Friend member in gameLobby.Members)
+            foreach (CSteamID member in getAllPlayers())
             {
-                if (member.Id == SteamClient.SteamId.Value) continue;
-                SteamNetworking.SendP2PPacket(member.Id, writePacket(chatPacket), nChannel: 2);
+                if (member.m_SteamID == SteamUser.GetSteamID().m_SteamID) continue;
+                sendPacketToPlayer(chatPacket, member);
             }
         }
 
-        public void messagePlayer(string msg, SteamId id, string color = "ffffff")
+        public void messagePlayer(string msg, CSteamID id, string color = "ffffff")
         {
             Dictionary<string, object> chatPacket = new();
             chatPacket["type"] = "message";
@@ -235,7 +236,7 @@ namespace Cove.Server
             chatPacket["zone"] = "main_zone";
             chatPacket["zone_owner"] = 1;
 
-            SteamNetworking.SendP2PPacket(id, writePacket(chatPacket), nChannel: 2);
+            sendPacketToPlayer(chatPacket, id);
         }
 
         public void setActorZone(WFActor instance, string zoneName, int zoneOwner)
@@ -267,19 +268,22 @@ namespace Cove.Server
             sendPacketToPlayers(removePacket); // remove
         }
 
-        public bool isPlayerAdmin(SteamId id)
+        public bool isPlayerAdmin(CSteamID id)
         {
-            string adminSteamID = Admins.Find(a => long.Parse(a) == long.Parse(id.ToString()));
+            string adminSteamID = Admins.Find(a => long.Parse(a) == (long)id.m_SteamID);
             return adminSteamID is string;
         }
 
         void updatePlayercount()
         {
             string serverName = $"{ServerName}";
-            gameLobby.SetData("lobby_name", serverName); // not sure what this dose rn
-            gameLobby.SetData("name", serverName);
+            //gameLobby.SetData("lobby_name", serverName); // not sure what this dose rn
+            //gameLobby.SetData("name", serverName);
 
-            Console.Title = $"Cove Dedicated Server, {gameLobby.MemberCount - 1} players!";
+            //Console.Title = $"Cove Dedicated Server, {gameLobby.MemberCount - 1} players!";
+
+            SteamMatchmaking.SetLobbyData(Lobby, "name", serverName);
+            SteamMatchmaking.SetLobbyData(Lobby, "player_count", $"{SteamMatchmaking.GetNumLobbyMembers(Lobby)}");
         }
 
         public void disconnectAllPlayers()
