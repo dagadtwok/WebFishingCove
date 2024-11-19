@@ -67,7 +67,7 @@ namespace Cove.Server
 
                             sendPacketToPlayer(kickPacket, sender);
 
-                            messageGlobal($"{offendingPlayer.FisherName} was kicked for spawning illegal actors");
+                            messageGlobal($"{offendingPlayer.Username} was kicked for spawning illegal actors");
                         }
 
                         if (type == "player")

@@ -6,6 +6,7 @@ using Cove.Server.Utils;
 using Microsoft.Extensions.Hosting;
 using Cove.Server.HostedServices;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace Cove.Server
 {
@@ -26,7 +27,7 @@ namespace Cove.Server
         public bool shouldSpawnPortal = true;
 
         List<string> Admins = new();
-        public CSteamID Lobby;
+        public CSteamID SteamLobby;
 
         public List<WFPlayer> AllPlayers = new();
         public List<WFActor> serverOwnedInstances = new();
@@ -208,17 +209,17 @@ namespace Cove.Server
 
             Callback<LobbyCreated_t>.Create((LobbyCreated_t param) =>
             {
-                Lobby = new CSteamID(param.m_ulSteamIDLobby);
-                SteamMatchmaking.SetLobbyData(Lobby, "ref", "webfishing_gamelobby");
-                SteamMatchmaking.SetLobbyData(Lobby, "version", WebFishingGameVersion);
-                SteamMatchmaking.SetLobbyData(Lobby, "code", LobbyCode);
-                SteamMatchmaking.SetLobbyData(Lobby, "type", codeOnly ? "code_only" : "public");
-                SteamMatchmaking.SetLobbyData(Lobby, "public", "true");
-                SteamMatchmaking.SetLobbyData(Lobby, "banned_players", "");
-                SteamMatchmaking.SetLobbyData(Lobby, "age_limit", ageRestricted ? "true" : "false");
-                SteamMatchmaking.SetLobbyData(Lobby, "cap", MaxPlayers.ToString());
-                SteamNetworking.AllowP2PPacketRelay(true);
-                SteamMatchmaking.SetLobbyData(Lobby, "server_browser_value", "0");
+                SteamLobby = new CSteamID(param.m_ulSteamIDLobby);
+                SteamMatchmaking.SetLobbyData(SteamLobby, "ref", "webfishing_gamelobby");
+                SteamMatchmaking.SetLobbyData(SteamLobby, "version", WebFishingGameVersion);
+                SteamMatchmaking.SetLobbyData(SteamLobby, "code", LobbyCode);
+                SteamMatchmaking.SetLobbyData(SteamLobby, "type", codeOnly ? "code_only" : "public");
+                SteamMatchmaking.SetLobbyData(SteamLobby, "public", "true");
+                SteamMatchmaking.SetLobbyData(SteamLobby, "banned_players", "");
+                SteamMatchmaking.SetLobbyData(SteamLobby, "age_limit", ageRestricted ? "true" : "false");
+                SteamMatchmaking.SetLobbyData(SteamLobby, "cap", MaxPlayers.ToString());
+                SteamNetworking.AllowP2PPacketRelay(false);
+                SteamMatchmaking.SetLobbyData(SteamLobby, "server_browser_value", "0");
                 Console.WriteLine("Lobby Created!");
                 Console.Write("Lobby Code: ");
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -230,9 +231,8 @@ namespace Cove.Server
 
             Callback<LobbyChatUpdate_t>.Create((LobbyChatUpdate_t param) =>
             {
+
                 CSteamID lobbyID = new CSteamID(param.m_ulSteamIDLobby);
-                if (lobbyID.m_SteamID != Lobby.m_SteamID)
-                    return;
 
                 CSteamID userChanged = new CSteamID(param.m_ulSteamIDUserChanged);
                 CSteamID userMakingChange = new CSteamID(param.m_ulSteamIDMakingChange);
@@ -291,9 +291,18 @@ namespace Cove.Server
 
                 // get all members in the lobby
                 CSteamID[] members = getAllPlayers();
-                if (!members.Contains(param.m_steamIDRemote))
+                if (!members.Contains(param.m_steamIDRemote) && AllPlayers.Find(p => p.SteamId.m_SteamID == param.m_steamIDRemote.m_SteamID) == null)
                 {
                     Console.WriteLine($"Got P2P request from {param.m_steamIDRemote}, but they are not in the lobby!");
+                    SteamNetworking.CloseP2PSessionWithUser(param.m_steamIDRemote);
+                    return;
+                }
+
+                if (isPlayerBanned(param.m_steamIDRemote))
+                {
+                    Console.WriteLine($"Got P2P request from {param.m_steamIDRemote}, but they are banned!");
+                    SteamNetworking.CloseP2PSessionWithUser(param.m_steamIDRemote);
+                    sendBlacklistPacketToAll(param.m_steamIDRemote.m_SteamID.ToString());
                     return;
                 }
 
@@ -302,6 +311,7 @@ namespace Cove.Server
 
             // create the server
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, MaxPlayers);
+
         }
         private bool getBoolFromString(string str)
         {
@@ -363,7 +373,7 @@ namespace Cove.Server
         {
 
             WFPlayer sender = AllPlayers.Find(p => p.SteamId == id);
-            Console.WriteLine($"{sender.FisherName}: {message}");
+            Console.WriteLine($"{sender.Username}: {message}");
 
             foreach (PluginInstance plugin in loadedPlugins)
             {

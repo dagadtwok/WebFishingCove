@@ -76,7 +76,7 @@ public class ChatCommands : CovePlugin
                     string messageBody = "";
                     foreach (var player in playersOnPage)
                     {
-                        messageBody += $"\n{player.FisherName}: {player.FisherID}";
+                        messageBody += $"\n{player.Username}: {player.FisherID}";
                     }
 
                     messageBody += $"\nPage {pageNumber} of {totalPages}";
@@ -132,7 +132,7 @@ public class ChatCommands : CovePlugin
                     {
                         if (!IsPlayerAdmin(sender)) return;
                         string playerName = message.Substring(command.Length + 1);
-                        WFPlayer kickedplayer = GetAllPlayers().ToList().Find(p => p.FisherName.Equals(playerName, StringComparison.OrdinalIgnoreCase));
+                        WFPlayer kickedplayer = GetAllPlayers().ToList().Find(p => p.Username.Equals(playerName, StringComparison.OrdinalIgnoreCase));
                         if (kickedplayer == null)
                         {
                             SendPlayerChatMessage(sender, "That's not a player!");
@@ -144,8 +144,8 @@ public class ChatCommands : CovePlugin
 
                             SendPacketToPlayer(packet, kickedplayer);
 
-                            SendPlayerChatMessage(sender, $"Kicked {kickedplayer.FisherName}");
-                            SendGlobalChatMessage($"{kickedplayer.FisherName} was kicked from the lobby!");
+                            SendPlayerChatMessage(sender, $"Kicked {kickedplayer.Username}");
+                            SendGlobalChatMessage($"{kickedplayer.Username} was kicked from the lobby!");
                         }
                     }
                     break;
@@ -156,7 +156,7 @@ public class ChatCommands : CovePlugin
                         // hacky fix,
                         // Extract player name from the command message
                         string playerName = message.Substring(command.Length + 1);
-                        WFPlayer playerToBan = GetAllPlayers().ToList().Find(p => p.FisherName.Equals(playerName, StringComparison.OrdinalIgnoreCase));
+                        WFPlayer playerToBan = GetAllPlayers().ToList().Find(p => p.Username.Equals(playerName, StringComparison.OrdinalIgnoreCase));
 
                         if (playerToBan == null)
                         {
@@ -165,8 +165,8 @@ public class ChatCommands : CovePlugin
                         else
                         {
                             BanPlayer(playerToBan);
-                            SendPlayerChatMessage(sender, $"Banned {playerToBan.FisherName}");
-                            SendGlobalChatMessage($"{playerToBan.FisherName} has been banned from the server.");
+                            SendPlayerChatMessage(sender, $"Banned {playerToBan.Username}");
+                            SendGlobalChatMessage($"{playerToBan.Username} has been banned from the server.");
                         }
                     }
                     break;
@@ -178,24 +178,24 @@ public class ChatCommands : CovePlugin
                         if (arg == "true")
                         {
                             //Server.gameLobby.SetJoinable(true);
-                            SteamMatchmaking.SetLobbyJoinable(Server.Lobby, true);
+                            SteamMatchmaking.SetLobbyJoinable(Server.SteamLobby, true);
                             SendPlayerChatMessage(sender, $"Opened lobby!");
                             if (!Server.codeOnly)
                             {
                                 //Server.gameLobby.SetData("type", "public");
-                                SteamMatchmaking.SetLobbyData(Server.Lobby, "type", "public");
+                                SteamMatchmaking.SetLobbyData(Server.SteamLobby, "type", "public");
                                 SendPlayerChatMessage(sender, $"Unhid server from server list");
                             }
                         }
                         else if (arg == "false")
                         {
                             //Server.gameLobby.SetJoinable(false);
-                            SteamMatchmaking.SetLobbyJoinable(Server.Lobby, false);
+                            SteamMatchmaking.SetLobbyJoinable(Server.SteamLobby, false);
                             SendPlayerChatMessage(sender, $"Closed lobby!");
                             if (!Server.codeOnly)
                             {
                                 //Server.gameLobby.SetData("type", "code_only");
-                                SteamMatchmaking.SetLobbyData(Server.Lobby, "type", "code_only");
+                                SteamMatchmaking.SetLobbyData(Server.SteamLobby, "type", "code_only");
                                 SendPlayerChatMessage(sender, $"Hid server from server list");
                             }
                         }

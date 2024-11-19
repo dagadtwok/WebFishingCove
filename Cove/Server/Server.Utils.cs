@@ -284,9 +284,9 @@ namespace Cove.Server
 
             //Console.Title = $"Cove Dedicated Server, {gameLobby.MemberCount - 1} players!";
 
-            SteamMatchmaking.SetLobbyData(Lobby, "lobby_name", serverName);
-            SteamMatchmaking.SetLobbyData(Lobby, "name", serverName);
-            SteamMatchmaking.SetLobbyData(Lobby, "player_count", $"{SteamMatchmaking.GetNumLobbyMembers(Lobby)}");
+            SteamMatchmaking.SetLobbyData(SteamLobby, "lobby_name", serverName);
+            SteamMatchmaking.SetLobbyData(SteamLobby, "name", serverName);
+            SteamMatchmaking.SetLobbyData(SteamLobby, "player_count", $"{SteamMatchmaking.GetNumLobbyMembers(SteamLobby)}");
         }
 
         public void disconnectAllPlayers()

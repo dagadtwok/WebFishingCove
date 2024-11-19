@@ -49,7 +49,6 @@ namespace Cove.Server.HostedServices
                         server.removeServerActor(inst);
                         Console.WriteLine($"Removed {inst.Type}, Decayed");
                     }
-                    Console.WriteLine($"Instance {inst.Type} is {instanceAge} seconds old");
                 }
             }
             catch (Exception e)
@@ -113,9 +112,6 @@ namespace Cove.Server.HostedServices
                     break;
 
             }
-
-            Console.WriteLine($"Spawned {type}");
-
         }
 
         // This method is called when the service is stopping.

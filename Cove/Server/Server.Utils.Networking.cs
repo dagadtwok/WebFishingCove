@@ -38,12 +38,13 @@ namespace Cove.Server
 
         public CSteamID[] getAllPlayers()
         {
-            int playerCount = SteamMatchmaking.GetNumLobbyMembers(Lobby);
+            int playerCount = AllPlayers.Count;
+            //Console.WriteLine($"Player count: {playerCount}");
             CSteamID[] players = new CSteamID[playerCount];
 
             for (int i = 0; i < playerCount; i++)
             {
-                players[i] = SteamMatchmaking.GetLobbyMemberByIndex(Lobby, i);
+                players[i] = AllPlayers[i].SteamId;
             }
 
             return players;

@@ -16,7 +16,7 @@ void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
     closePacket["type"] = "server_close";
 
     webfishingServer.disconnectAllPlayers();
-    SteamMatchmaking.LeaveLobby(webfishingServer.Lobby);
+    SteamMatchmaking.LeaveLobby(webfishingServer.SteamLobby);
     SteamAPI.Shutdown();
 }
 
@@ -33,7 +33,7 @@ while (true)
             closePacket["type"] = "server_close";
 
             webfishingServer.disconnectAllPlayers();
-            SteamMatchmaking.LeaveLobby(webfishingServer.Lobby);
+            SteamMatchmaking.LeaveLobby(webfishingServer.SteamLobby);
             SteamAPI.Shutdown();
             Environment.Exit(0);
             break;
@@ -47,18 +47,18 @@ while (true)
         case "ban":
             {
                 string id = input.Substring(command.Length + 1);
-                WFPlayer player = webfishingServer.AllPlayers.Find(p => p.FisherName.ToLower() == id.ToLower());
+                WFPlayer player = webfishingServer.AllPlayers.Find(p => p.Username.ToLower() == id.ToLower());
                 if (player != null)
                 {
                     if (webfishingServer.isPlayerBanned(player.SteamId))
                     {
-                        Console.WriteLine($"Player {player.FisherName} is already banned!");
+                        Console.WriteLine($"Player {player.Username} is already banned!");
                         break;
                     } else
                     {
                         webfishingServer.banPlayer(player.SteamId, true);
                     }
-                    Console.WriteLine($"Banned player {player.FisherName}");
+                    Console.WriteLine($"Banned player {player.Username}");
                 }
                 else
                 {
@@ -69,11 +69,11 @@ while (true)
         case "kick":
             {
                 string id = input.Substring(command.Length + 1);
-                WFPlayer player = webfishingServer.AllPlayers.Find(p => p.FisherName.ToLower() == id.ToLower());
+                WFPlayer player = webfishingServer.AllPlayers.Find(p => p.Username.ToLower() == id.ToLower());
                 if (player != null)
                 {
                     webfishingServer.kickPlayer(player.SteamId);
-                    Console.WriteLine($"Kicked player {player.FisherName}");
+                    Console.WriteLine($"Kicked player {player.Username}");
                 }
                 else
                 {
@@ -85,7 +85,7 @@ while (true)
             Console.WriteLine("Players:");
             foreach (WFPlayer player in webfishingServer.AllPlayers)
             {
-                Console.WriteLine(player.FisherName);
+                Console.WriteLine(player.Username);
             }
             break;
         case "help":

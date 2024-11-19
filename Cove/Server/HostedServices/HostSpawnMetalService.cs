@@ -36,7 +36,7 @@ namespace Cove.Server.HostedServices
 
             // still got no idea
             //server.gameLobby.SetData("server_browser_value", "0");
-            SteamMatchmaking.SetLobbyData(server.Lobby, "server_browser_value", "0");
+            SteamMatchmaking.SetLobbyData(server.SteamLobby, "server_browser_value", "0");
 
             int metalCount = server.serverOwnedInstances.FindAll(a => a.Type == "metal_spawn").Count;
             if (metalCount > 7)
