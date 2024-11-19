@@ -119,9 +119,13 @@ namespace Cove.Server
                         if ((string)packetInfo["action"] == "_wipe_actor")
                         {
                             long actorToWipe = (long)((Dictionary<int, object>)packetInfo["params"])[0];
-                            WFActor serverInst = serverOwnedInstances.Find(i => (long)i.InstanceID == actorToWipe);
+                            WFActor serverInst = serverOwnedInstances.Find(i => i.InstanceID == actorToWipe);
                             if (serverInst != null)
                             {
+                                // stop players from removing rain clouds
+                                if (serverInst.Type == "raincloud")
+                                    return;
+
                                 Console.WriteLine($"Player asked to remove {serverInst.Type} actor");
 
                                 // the sever owns the instance

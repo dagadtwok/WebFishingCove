@@ -52,14 +52,16 @@ namespace Cove.Server
             instanceSpacePrams["creator_id"] = (long)SteamUser.GetSteamID().m_SteamID;
 
             sendPacketToPlayers(rainSpawnPacket); // spawn the rain!
-            serverOwnedInstances.Add(new RainCloud(IId, pos));
+            RainCloud cloud = new RainCloud(IId, pos);
+            cloud.despawn = true;
+            serverOwnedInstances.Add(cloud);
         }
 
         public WFActor spawnFish(string fishType = "fish_spawn")
         {
             Vector3 pos = fish_points[(new Random()).Next(fish_points.Count)] + new Vector3(0,.08f,0);
             WFActor actor = spawnGenericActor(fishType, pos);
-            actor.despawn = false;
+            actor.despawn = true;
             actor.despawnTime = fishType == "fish_spawn" ? 80 : 120; // 80 for normal fish, 120 for alien fish
             return actor;
         }

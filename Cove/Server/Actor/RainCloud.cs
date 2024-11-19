@@ -22,7 +22,7 @@ namespace Cove.Server.Actor
             toCenter = (pos - new Vector3(30, 40, -50)).Normalized();
             wanderDirection = new Vector2(toCenter.x, toCenter.z).Angle();
             despawn = true;
-            despawnTime = 550;
+            despawnTime = 540;
         }
 
         public override void onUpdate()

@@ -255,6 +255,10 @@ namespace Cove.Server
                         plugin.plugin.onPlayerJoin(newPlayer);
                     }
 
+                    // check if the player is banned
+                    if (isPlayerBanned(userChanged))
+                        sendBlacklistPacketToAll(userChanged.m_SteamID.ToString()); // tell all players to blacklist the banned player
+
                 }
 
                 if (stateChange.HasFlag(EChatMemberStateChange.k_EChatMemberStateChangeLeft) || stateChange.HasFlag(EChatMemberStateChange.k_EChatMemberStateChangeDisconnected))

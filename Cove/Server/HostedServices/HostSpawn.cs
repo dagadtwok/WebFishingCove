@@ -44,11 +44,12 @@ namespace Cove.Server.HostedServices
                 foreach (WFActor inst in server.serverOwnedInstances)
                 {
                     float instanceAge = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - inst.SpawnTime.ToUnixTimeSeconds();
-                    if (inst.despawn && instanceAge > inst.despawnTime)
+                    if (inst.despawn && instanceAge >= inst.despawnTime)
                     {
-                        server.serverOwnedInstances.Remove(inst);
+                        server.removeServerActor(inst);
                         Console.WriteLine($"Removed {inst.Type}, Decayed");
                     }
+                    Console.WriteLine($"Instance {inst.Type} is {instanceAge} seconds old");
                 }
             }
             catch (Exception e)
@@ -112,6 +113,8 @@ namespace Cove.Server.HostedServices
                     break;
 
             }
+
+            Console.WriteLine($"Spawned {type}");
 
         }
 
