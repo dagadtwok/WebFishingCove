@@ -30,7 +30,7 @@ namespace Cove.Server
 
                 case "new_player_join":
                     {
-                        if (!hideJoinMessage)
+                        if (!string.IsNullOrEmpty(joinMessage))
                         {
                             messagePlayer(joinMessage, sender);
                         }
