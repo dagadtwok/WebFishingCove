@@ -9,9 +9,6 @@ jobs:
   # Windows Build Job
   windows-build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./Cove
 
     steps:
       # Step 1: Checkout the code
@@ -46,9 +43,7 @@ jobs:
   # Linux Build Job
   linux-build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./Cove
+    
     steps:
       # Step 1: Checkout the code
       - name: Checkout code
