@@ -1,9 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <BuildProjectReferences>false</BuildProjectReferences>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -19,7 +21,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cove\Cove.csproj" />
+    <ProjectReference Include="..\Cove\Cove.csproj">
+      <Private>False</Private>
+      <ExcludeAssets></ExcludeAssets>
+      <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+    </ProjectReference>
   </ItemGroup>
+
+  <!-- Copy the Cove.ChatCommands.dll file from the build directory to ./plugins -->
+  <Target Name="CopyPlugin" AfterTargets="Publish">
+
+    <!-- Windows specific copy command -->
+    <Copy Condition="'$(OS)' == 'Windows_NT'"
+          SourceFiles="$(OutputPath)$(AssemblyName).dll"
+          DestinationFolder="$(SolutionDir)publish\plugins" />
+
+    <!-- Linux specific copy command -->
+    <Copy Condition="'$(OS)' == 'Unix'"
+          SourceFiles="$(OutputPath)$(AssemblyName).dll"
+          DestinationFolder="$(SolutionDir)publish/plugins" />
+
+  </Target>
 
 </Project>
