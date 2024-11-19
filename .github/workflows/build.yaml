@@ -99,11 +99,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: linux64
-          
-      - name: Download CC Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: win64-ChatCommands
 
       # Step 2: Create a new nightly release
       - name: Create GitHub Release
