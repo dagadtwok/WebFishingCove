@@ -6,7 +6,7 @@
 Cove is a dedicated server for WebFishing written in C#!
 
 > [!IMPORTANT]  
-> Cove is verry new, there will be unexpected bugs! 
+> Cove is very new, there will be unexpected bugs! 
 >
 > If you encounter any large issues or bugs please let me know!
 
@@ -18,6 +18,8 @@ Cove uses none of WebFishing's code, insted it used C# to emulate the same netwo
 Things like event spawning all had to be written from scratch to allow for the portability of C#! (also because i dont know GDScript)
 
 Because of this emulation to run the server you must run it from a steam account that owns the game and that has steam open in the background
+
+## If you have any questions or issues with Cove, create and issue on Github or DM me on Discord `meepso`
 
 # Todo
 - [X] Spawn actors required for the metal detector
