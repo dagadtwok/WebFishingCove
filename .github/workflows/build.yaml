@@ -86,7 +86,7 @@ jobs:
   # Create Release Job
   create-release:
     runs-on: ubuntu-latest
-    needs: [windows-build, linux-build, chatCommands-build]  # Waits for both builds to finish
+    needs: [windows-build, linux-build]  # Waits for both builds to finish
 
     steps:
       # Step 1: Download artifacts from previous jobs
