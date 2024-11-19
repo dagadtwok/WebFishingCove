@@ -32,8 +32,7 @@ namespace Cove.Server
                     {
                         if (!hideJoinMessage)
                         {
-                            messagePlayer("This is a Cove dedicated server!", sender);
-                            messagePlayer("Please report any issues to the github (xr0.xyz/cove)", sender);
+                            messagePlayer(joinMessage, sender);
                         }
                         Dictionary<string, object> hostPacket = new();
                         hostPacket["type"] = "recieve_host";
