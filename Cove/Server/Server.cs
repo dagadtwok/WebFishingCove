@@ -26,6 +26,8 @@ namespace Cove.Server
         public bool shouldSpawnMetal = true;
         public bool shouldSpawnPortal = true;
 
+        public bool showErrorMessages = true;
+
         List<string> Admins = new();
         public CSteamID SteamLobby;
 
@@ -133,6 +135,10 @@ namespace Cove.Server
 
                     case "spawnPortal":
                         shouldSpawnPortal = getBoolFromString(config[key]);
+                        break;
+
+                    case "showErrors":
+                        showErrorMessages = getBoolFromString(config[key]);
                         break;
 
                     default:
@@ -363,6 +369,9 @@ namespace Cove.Server
                 }
                 catch (Exception e)
                 {
+                    if (!showErrorMessages)
+                        return;
+                    
                     Console.WriteLine("-- Error responding to packet! --");
                     Console.WriteLine(e.ToString());
                 }
