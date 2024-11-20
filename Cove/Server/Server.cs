@@ -224,7 +224,7 @@ namespace Cove.Server
                 SteamMatchmaking.SetLobbyData(SteamLobby, "banned_players", "");
                 SteamMatchmaking.SetLobbyData(SteamLobby, "age_limit", ageRestricted ? "true" : "false");
                 SteamMatchmaking.SetLobbyData(SteamLobby, "cap", MaxPlayers.ToString());
-                SteamNetworking.AllowP2PPacketRelay(false);
+                SteamNetworking.AllowP2PPacketRelay(true);
                 SteamMatchmaking.SetLobbyData(SteamLobby, "server_browser_value", "0");
                 Console.WriteLine("Lobby Created!");
                 Console.Write("Lobby Code: ");
