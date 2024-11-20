@@ -19,7 +19,7 @@ namespace Cove.Server
         public bool codeOnly = true;
         public bool ageRestricted = false;
         
-        public bool hideJoinMessage = false;
+        public string joinMessage = "This is a Cove dedicated server!\nPlease report any issues to the github (xr0.xyz/cove)";
 
         public float rainMultiplyer = 1f;
         public bool shouldSpawnMeteor = true;
@@ -119,8 +119,8 @@ namespace Cove.Server
                         arePluginsEnabled = getBoolFromString(config[key]);
                         break;
 
-                    case "hideJoinMessage":
-                        hideJoinMessage = getBoolFromString(config[key]);
+                    case "joinMessage":
+                        joinMessage = config[key];
                         break;
 
                     case "spawnMeteor":
