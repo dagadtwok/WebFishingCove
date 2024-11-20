@@ -8,7 +8,7 @@
 
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>false</PublishTrimmed>
-    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishReadyToRun>false</PublishReadyToRun>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
