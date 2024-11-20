@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 using Cove.GodotFormat;
 
 namespace Cove.Server.Utils
@@ -27,7 +28,7 @@ namespace Cove.Server.Utils
                     string y = match.Groups[2].Value;
                     string z = match.Groups[3].Value;
 
-                    Vector3 thisPoint = new Vector3(float.Parse(x), float.Parse(y), float.Parse(z));
+                    Vector3 thisPoint = new Vector3(float.Parse(x, CultureInfo.InvariantCulture), float.Parse(y, CultureInfo.InvariantCulture), float.Parse(z, CultureInfo.InvariantCulture));
                     points.Add(thisPoint);
                 }
             }
