@@ -19,7 +19,7 @@ Things like event spawning all had to be written from scratch to allow for the p
 
 Because of this emulation to run the server you must run it from a steam account that owns the game and that has steam open in the background
 
-## If you have any questions or issues with Cove, create and issue on Github or join the [Discord Server](https://discord.gg/QfydV2Ze8f)
+If you have any questions or issues with Cove, **create and issue on Github** or join the [**Discord Server**](https://discord.gg/QfydV2Ze8f)
 
 # Todo
 - [X] Spawn actors required for the metal detector
