@@ -61,7 +61,21 @@ namespace Cove.GodotFormat
             else if (packet is Vector3)
             {
                 writeVector3((Vector3)packet, bw);
+            } else if (packet is Vector2)
+            {
+                writeVector2((Vector2)packet, bw);
+            } else
+            {
+                throw new Exception("Unknown type: " + packet.GetType());
             }
+        }
+
+        private static void writeVector2(Vector2 packet, BinaryWriter bw)
+        {
+            bw.Write((int)5); // write v2 header
+
+            bw.Write((Single)packet.x);
+            bw.Write((Single)packet.y);
         }
 
         private static void writeVector3(Vector3 packet, BinaryWriter bw)

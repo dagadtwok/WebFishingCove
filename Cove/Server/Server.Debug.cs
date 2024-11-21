@@ -9,7 +9,7 @@ namespace Cove.Server
     public partial class CoveServer
     {
         // purely for debug
-        void printStringDict(Dictionary<string, object> obj, string sub = "")
+        public static void printStringDict(Dictionary<string, object> obj, string sub = "")
         {
             foreach (var kvp in obj)
             {
@@ -25,7 +25,7 @@ namespace Cove.Server
                 }
             }
         }
-        void printArray(Dictionary<int, object> obj, string sub = "")
+        public static void printArray(Dictionary<int, object> obj, string sub = "")
         {
             foreach (var kvp in obj)
             {
