@@ -47,8 +47,6 @@ namespace Cove.Server
                         foreach (Chalk.ChalkCanvas canvas in chalkCanvas)
                         {
                             var chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", canvas.getChalkPacket() } };
-                            printStringDict(chalkPacket);
-
                             sendPacketToPlayer(chalkPacket, sender);
                         }
 
