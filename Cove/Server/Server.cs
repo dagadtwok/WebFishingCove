@@ -169,6 +169,7 @@ namespace Cove.Server
             if (!SteamAPI.Init())
             {
                 Console.WriteLine("SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.");
+                Console.WriteLine("Is Steam running?");
                 return;
             }
 
@@ -265,6 +266,14 @@ namespace Cove.Server
                     if (isPlayerBanned(userChanged))
                         sendBlacklistPacketToAll(userChanged.m_SteamID.ToString()); // tell all players to blacklist the banned player
 
+                    if (userChanged.m_SteamID == SteamUser.GetSteamID().m_SteamID)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("The account running the server has joined the game!");
+                        Console.WriteLine("This will cause issues, please run the server on a different account!");
+                        Console.ResetColor();
+                    }
+
                 }
 
                 if (stateChange.HasFlag(EChatMemberStateChange.k_EChatMemberStateChangeLeft) || stateChange.HasFlag(EChatMemberStateChange.k_EChatMemberStateChangeDisconnected))
@@ -315,7 +324,6 @@ namespace Cove.Server
                 SteamNetworking.AcceptP2PSessionWithUser(param.m_steamIDRemote);
             });
 
-            // create the server
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, MaxPlayers);
 
         }
