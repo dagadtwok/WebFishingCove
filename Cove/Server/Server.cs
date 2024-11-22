@@ -390,7 +390,7 @@ namespace Cove.Server
         {
 
             WFPlayer sender = AllPlayers.Find(p => p.SteamId == id);
-            Console.WriteLine($"{sender.Username}: {message}");
+            Console.WriteLine($"[{sender.FisherID}] {sender.Username}: {message}");
 
             foreach (PluginInstance plugin in loadedPlugins)
             {

@@ -17,7 +17,6 @@ namespace Cove.GodotFormat
             writeDictionary(packet, bw);
 
             return stream.ToArray();
-
         }
 
         private static void writeAny(object packet, BinaryWriter bw)

@@ -105,8 +105,7 @@ namespace Cove.Server
                         pongPacket["type"] = "send_ping";
                         pongPacket["time"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
                         pongPacket["from"] = SteamUser.GetSteamID().m_SteamID.ToString();
-                        // send the ping packet!
-                        //SteamNetworking.SendP2PPacket(packet.SteamId, writePacket(pongPacket), nChannel: 1);
+
                         sendPacketToPlayer(pongPacket, sender);
                     }
                     break;

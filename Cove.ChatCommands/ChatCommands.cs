@@ -131,8 +131,13 @@ public class ChatCommands : CovePlugin
                 case "!kick":
                     {
                         if (!IsPlayerAdmin(sender)) return;
-                        string playerName = message.Substring(command.Length + 1);
-                        WFPlayer kickedplayer = GetAllPlayers().ToList().Find(p => p.Username.Equals(playerName, StringComparison.OrdinalIgnoreCase));
+                        string playerIdent = message.Substring(command.Length + 1);
+                        // try find a user with the username first
+                        WFPlayer kickedplayer = GetAllPlayers().ToList().Find(p => p.Username.Equals(playerIdent, StringComparison.OrdinalIgnoreCase));
+                        // if there is no player with the username try find someone with that fisher ID
+                        if (kickedplayer == null)
+                            kickedplayer = GetAllPlayers().ToList().Find(p => p.FisherID.Equals(playerIdent, StringComparison.OrdinalIgnoreCase));
+                        
                         if (kickedplayer == null)
                         {
                             SendPlayerChatMessage(sender, "That's not a player!");
@@ -155,8 +160,12 @@ public class ChatCommands : CovePlugin
                         if (!IsPlayerAdmin(sender)) return;
                         // hacky fix,
                         // Extract player name from the command message
-                        string playerName = message.Substring(command.Length + 1);
-                        WFPlayer playerToBan = GetAllPlayers().ToList().Find(p => p.Username.Equals(playerName, StringComparison.OrdinalIgnoreCase));
+                        string playerIdent = message.Substring(command.Length + 1);
+                        // try find a user with the username first
+                        WFPlayer playerToBan = GetAllPlayers().ToList().Find(p => p.Username.Equals(playerIdent, StringComparison.OrdinalIgnoreCase));
+                        // if there is no player with the username try find someone with that fisher ID
+                        if (playerToBan == null)
+                            playerToBan = GetAllPlayers().ToList().Find(p => p.FisherID.Equals(playerIdent, StringComparison.OrdinalIgnoreCase));
 
                         if (playerToBan == null)
                         {
