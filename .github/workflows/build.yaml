@@ -67,11 +67,15 @@ jobs:
       - name: Copy libsteam_api.so to publish folder
         run: cp ./Cove/NativeLibraries/linux64/libsteam_api.so ./publish/
 
-      # Step 6: Zip the Linux publish folder
+      # Step 6: Rename libsteam_api.so to libsteam_api64.so
+      - name: Rename libsteam_api.so
+        run: mv ./publish/libsteam_api.so ./publish/libsteam_api64.so
+
+      # Step 7: Zip the Linux publish folder
       - name: Zip the Linux publish folder
         run: zip -r ./publish/linux64.zip ./publish
 
-      # Step 7: Upload the Linux build as an artifact to be used in release
+      # Step 8: Upload the Linux build as an artifact to be used in release
       - name: Upload Linux Build Artifact
         uses: actions/upload-artifact@v3
         with:
