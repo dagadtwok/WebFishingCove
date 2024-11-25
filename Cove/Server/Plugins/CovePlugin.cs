@@ -31,12 +31,12 @@ namespace Cove.Server.Plugins
         public void SendPlayerChatMessage(WFPlayer receiver, string message, string hexColor = "ffffff")
         {
             // remove a # incase its given
-            parentServer.messagePlayer(message, receiver.SteamId, hexColor.Replace("#", ""));
+            parentServer.messagePlayer(message, receiver.SteamId, color: hexColor.Replace("#", ""));
         }
 
         public void SendGlobalChatMessage(string message, string hexColor = "ffffff")
         {
-            parentServer.messageGlobal(message, hexColor.Replace("#", ""));
+            parentServer.messageGlobal(message, color: hexColor.Replace("#", ""));
         }
 
         public WFActor[] GetAllServerActors()
