@@ -194,25 +194,21 @@ namespace Cove.Server
             Logger<ActorUpdateService> actorServiceLogger = new Logger<ActorUpdateService>(loggerFactory);
             Logger<HostSpawnService> hostSpawnServiceLogger = new Logger<HostSpawnService>(loggerFactory);
             Logger<HostSpawnMetalService> hostSpawnMetalServiceLogger = new Logger<HostSpawnMetalService>(loggerFactory);
-            Logger<HLSServerListService> HLSServerListLogger = new Logger<HLSServerListService>(loggerFactory);
 
             // Create the services that we need to run.
             IHostedService actorUpdateService = new ActorUpdateService(actorServiceLogger, this);
             IHostedService hostSpawnService = new HostSpawnService(hostSpawnServiceLogger, this);
             IHostedService hostSpawnMetalService = new HostSpawnMetalService(hostSpawnMetalServiceLogger, this);
-            IHostedService hlsServerList = new HLSServerListService(HLSServerListLogger, this);
 
             // Start the services.
             actorUpdateService.StartAsync(CancellationToken.None);
             hostSpawnService.StartAsync(CancellationToken.None);
             hostSpawnMetalService.StartAsync(CancellationToken.None);
-            hlsServerList.StartAsync(CancellationToken.None);
 
             // add them to the services dictionary so we can access them later if needed
             services["actor_update"] = actorUpdateService;
             services["host_spawn"] = hostSpawnService;
             services["host_spawn_metal"] = hostSpawnMetalService;
-            services["hls_server_list"] = hlsServerList;
 
             Callback<LobbyCreated_t>.Create((LobbyCreated_t param) =>
             {
