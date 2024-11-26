@@ -248,6 +248,13 @@ namespace Cove.Server
                     Console.WriteLine($"{Username} [{userChanged.m_SteamID}] has joined the game!");
                     updatePlayercount();
 
+                    if (AllPlayers.Find(p => p.SteamId.m_SteamID == userChanged.m_SteamID) != null)
+                    {
+                        Console.WriteLine($"{Username} is already in the server, rejecting");
+                        sendBlacklistPacketToAll(userChanged.m_SteamID.ToString()); // tell players to blacklist the player
+                        return; // player is already in the server, dont add them again
+                    }
+
                     WFPlayer newPlayer = new WFPlayer(userChanged, Username);
                     AllPlayers.Add(newPlayer);
 
@@ -291,7 +298,6 @@ namespace Cove.Server
                             }
 
                             AllPlayers.Remove(player);
-                            Console.WriteLine($"{Username} has been removed!");
                         }
                     }
                 }
