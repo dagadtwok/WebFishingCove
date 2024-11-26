@@ -28,15 +28,15 @@ namespace Cove.Server.Plugins
             return parentServer.AllPlayers.ToArray();
         }
 
-        public void SendPlayerChatMessage(WFPlayer receiver, string message, string hexColor = "ffffff")
+        public void SendPlayerChatMessage(WFPlayer receiver, string message)
         {
             // remove a # incase its given
-            parentServer.messagePlayer(message, receiver.SteamId, color: hexColor.Replace("#", ""));
+            parentServer.messagePlayer(message, receiver.SteamId);
         }
 
-        public void SendGlobalChatMessage(string message, string hexColor = "ffffff")
+        public void SendGlobalChatMessage(string message)
         {
-            parentServer.messageGlobal(message, color: hexColor.Replace("#", ""));
+            parentServer.messageGlobal(message);
         }
 
         public WFActor[] GetAllServerActors()
