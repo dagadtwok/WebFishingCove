@@ -1,6 +1,7 @@
 ﻿using Steamworks;
 using Cove.GodotFormat;
 using Cove.Server.Utils;
+using Cove.Server.Actor;
 
 namespace Cove.Server
 {
@@ -21,7 +22,7 @@ namespace Cove.Server
         {
             byte[] packetBytes = writePacket(packet);
             
-            foreach (CSteamID player in getAllPlayers())
+            foreach (CSteamID player in getAllPlayers().ToList())
             {
                 if (player == SteamUser.GetSteamID())
                     continue;
@@ -39,12 +40,11 @@ namespace Cove.Server
         public CSteamID[] getAllPlayers()
         {
             int playerCount = AllPlayers.Count;
-            //Console.WriteLine($"Player count: {playerCount}");
             CSteamID[] players = new CSteamID[playerCount];
 
-            for (int i = 0; i < playerCount; i++)
+            foreach (WFPlayer player in AllPlayers.ToList())
             {
-                players[i] = AllPlayers[i].SteamId;
+                players.Append(player.SteamId);
             }
 
             return players;
