@@ -2,6 +2,7 @@
 using Cove.GodotFormat;
 using Cove.Server.Actor;
 using Cove.Server.Utils;
+using System.Reflection;
 
 namespace Cove.Server
 {
@@ -30,7 +31,7 @@ namespace Cove.Server
 
                 case "new_player_join":
                     {
-                        if (!string.IsNullOrEmpty(joinMessage))
+                        if (displayJoinMessage)
                         {
                             messagePlayer(joinMessage, sender);
                         }
@@ -43,14 +44,10 @@ namespace Cove.Server
                             messagePlayer("You're an admin on this server!", sender);
                         }
 
-                        // send the player all the canvas data
-                        foreach (Chalk.ChalkCanvas canvas in chalkCanvas)
-                        {
-                            var chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", canvas.getChalkPacket() } };
-                            sendPacketToPlayer(chalkPacket, sender);
-                        }
-
+                        Thread ChalkInformer = new Thread(() => SendStagedChalkPackets(sender));
+                        ChalkInformer.Start(); // send the player all the chalk data
                     }
+
                     break;
 
                 case "instance_actor":
@@ -150,7 +147,7 @@ namespace Cove.Server
                         
                         if (canvas == null)
                         {
-                            Console.WriteLine("Creating new canvas");
+                            Console.WriteLine($"Creating new canvas: {canvasID}");
                             canvas = new Chalk.ChalkCanvas(canvasID);
                             chalkCanvas.Add(canvas);
                         }
@@ -159,6 +156,39 @@ namespace Cove.Server
 
                     }
                     break;
+            }
+        }
+
+        internal void SendStagedChalkPackets(CSteamID recipient)
+        {
+            // send the player all the canvas data
+            foreach (Chalk.ChalkCanvas canvas in chalkCanvas)
+            {
+                Dictionary<int, object> allChalk = canvas.getChalkPacket();
+
+                // split the dictionary into chunks of 100
+                List<Dictionary<int, object>> chunks = new List<Dictionary<int, object>>();
+                Dictionary<int, object> chunk = new Dictionary<int, object>();
+
+                int i = 0;
+                foreach (var kvp in allChalk)
+                {
+                    if (i >= 1000)
+                    {
+                        chunks.Add(chunk);
+                        chunk = new Dictionary<int, object>();
+                        i = 0;
+                    }
+                    chunk.Add(i, kvp.Value);
+                    i++;
+                }
+
+                for (int index = 0; index < chunks.Count; index++)
+                {
+                    Dictionary<string, object> chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", chunks[index] } };
+                    sendPacketToPlayer(chalkPacket, recipient);
+                    Thread.Sleep(10);
+                }
             }
         }
     }

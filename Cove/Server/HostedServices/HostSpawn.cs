@@ -41,7 +41,7 @@ namespace Cove.Server.HostedServices
             // remove old instances!
             try
             {
-                foreach (WFActor inst in server.serverOwnedInstances)
+                foreach (WFActor inst in server.serverOwnedInstances.ToList())
                 {
                     float instanceAge = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - inst.SpawnTime.ToUnixTimeSeconds();
                     if (inst.despawn && instanceAge >= inst.despawnTime)

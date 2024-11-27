@@ -44,7 +44,6 @@ namespace Cove.Server.HostedServices
 
             if (server.shouldSpawnMetal)
                 server.spawnMetal();
-
         }
 
         // This method is called when the service is stopping.

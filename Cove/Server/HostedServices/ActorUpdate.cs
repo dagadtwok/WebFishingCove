@@ -53,7 +53,7 @@ namespace Cove.Server.HostedServices
             try
             {
 
-                foreach (WFActor actor in server.serverOwnedInstances)
+                foreach (WFActor actor in server.serverOwnedInstances.ToList())
                 {
                     actor.onUpdate();
 

@@ -32,8 +32,6 @@ namespace Cove.Server.Chalk
                 i++;
             }
 
-            //CoveServer.printArray(packet);
-
             return packet;
         }
 

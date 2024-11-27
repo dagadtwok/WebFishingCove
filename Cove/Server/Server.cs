@@ -20,6 +20,7 @@ namespace Cove.Server
         public bool ageRestricted = false;
         
         public string joinMessage = "This is a Cove dedicated server!\nPlease report any issues to the github (xr0.xyz/cove)";
+        public bool displayJoinMessage = true;
 
         public float rainMultiplyer = 1f;
         public bool shouldSpawnMeteor = true;
@@ -27,6 +28,7 @@ namespace Cove.Server
         public bool shouldSpawnPortal = true;
 
         public bool showErrorMessages = true;
+        public bool freindsOnly = false;
 
         List<string> Admins = new();
         public CSteamID SteamLobby;
@@ -122,7 +124,7 @@ namespace Cove.Server
                         break;
 
                     case "joinMessage":
-                        joinMessage = config[key];
+                        joinMessage = config[key].Replace("\\n", "\n");
                         break;
 
                     case "spawnMeteor":
@@ -139,6 +141,14 @@ namespace Cove.Server
 
                     case "showErrors":
                         showErrorMessages = getBoolFromString(config[key]);
+                        break;
+
+                    case "freindsOnly":
+                        freindsOnly = getBoolFromString(config[key]);
+                        break;
+
+                    case "hideJoinMessage":
+                        displayJoinMessage = !getBoolFromString(config[key]);
                         break;
 
                     default:
@@ -230,6 +240,8 @@ namespace Cove.Server
                 Console.ResetColor();
                 // set the player count in the title
                 updatePlayercount();
+
+                SteamFriends.SetRichPresence("steam_display", $"hosting a server");
             });
 
             Callback<LobbyChatUpdate_t>.Create((LobbyChatUpdate_t param) =>
@@ -326,8 +338,10 @@ namespace Cove.Server
                 SteamNetworking.AcceptP2PSessionWithUser(param.m_steamIDRemote);
             });
 
-            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, MaxPlayers);
-
+            if (freindsOnly)
+                SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, MaxPlayers);
+            else
+                SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, MaxPlayers);
         }
         private bool getBoolFromString(string str)
         {
