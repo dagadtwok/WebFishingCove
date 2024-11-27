@@ -28,7 +28,7 @@ namespace Cove.Server
         public bool shouldSpawnPortal = true;
 
         public bool showErrorMessages = true;
-        public bool freindsOnly = false;
+        public bool friendsOnly = false;
 
         List<string> Admins = new();
         public CSteamID SteamLobby;
@@ -143,8 +143,8 @@ namespace Cove.Server
                         showErrorMessages = getBoolFromString(config[key]);
                         break;
 
-                    case "freindsOnly":
-                        freindsOnly = getBoolFromString(config[key]);
+                    case "friendsOnly":
+                        friendsOnly = getBoolFromString(config[key]);
                         break;
 
                     case "hideJoinMessage":
@@ -338,7 +338,7 @@ namespace Cove.Server
                 SteamNetworking.AcceptP2PSessionWithUser(param.m_steamIDRemote);
             });
 
-            if (freindsOnly)
+            if (friendsOnly)
                 SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, MaxPlayers);
             else
                 SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, MaxPlayers);
