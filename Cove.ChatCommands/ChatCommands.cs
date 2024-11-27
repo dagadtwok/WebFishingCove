@@ -2,6 +2,7 @@
 using Cove.Server.Actor;
 using Cove.Server.Plugins;
 using Steamworks;
+using System;
 
 public class ChatCommands : CovePlugin
 {
@@ -10,6 +11,9 @@ public class ChatCommands : CovePlugin
     {
         Server = server;
     }
+
+    // save the time the server was started
+    public long serverStartTime = DateTimeOffset.Now.ToUnixTimeSeconds();
 
     public override void onInit()
     {
@@ -219,6 +223,41 @@ public class ChatCommands : CovePlugin
                     {
                         if (!IsPlayerAdmin(sender)) return;
                         Server.readAdmins();
+                    }
+                    break;
+
+                case "!uptime":
+                    {
+                        long currentTime = DateTimeOffset.Now.ToUnixTimeSeconds();
+                        long uptime = currentTime - serverStartTime;
+
+                        TimeSpan time = TimeSpan.FromSeconds(uptime);
+
+                        int days = time.Days;
+                        int hours = time.Hours;
+                        int minutes = time.Minutes;
+                        int seconds = time.Seconds;
+
+                        string uptimeString = "";
+                        if (days > 0)
+                        {
+                            uptimeString += $"{days} Days, ";
+                        }
+                        if (hours > 0)
+                        {
+                            uptimeString += $"{hours} Hours, ";
+                        }
+                        if ( minutes > 0)
+                        {
+                            uptimeString += $"{minutes} Minutes, ";
+                        }
+                        if (seconds > 0)
+                        {
+                            uptimeString += $"{seconds} Seconds";
+                        }
+
+                        SendPlayerChatMessage(sender, $"Server uptime: {uptimeString}");
+
                     }
                     break;
             }
