@@ -38,6 +38,8 @@ namespace Cove.Server.Actor
             FisherID = randomID;
             Username = fisherName;
 
+            owner = id;
+
             pos = new Vector3(0, 0, 0);
             despawn = false; // players down despawn!
         }

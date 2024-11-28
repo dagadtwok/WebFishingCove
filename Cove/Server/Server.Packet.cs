@@ -14,12 +14,10 @@
    limitations under the License.
 */
 
-
 using Steamworks;
 using Cove.GodotFormat;
 using Cove.Server.Actor;
 using Cove.Server.Utils;
-using System.Reflection;
 
 namespace Cove.Server
 {
@@ -56,10 +54,9 @@ namespace Cove.Server
                         hostPacket["type"] = "recieve_host";
                         hostPacket["host_id"] = SteamUser.GetSteamID().m_SteamID.ToString();
                         sendPacketToPlayers(hostPacket);
+
                         if (isPlayerAdmin(sender))
-                        {
                             messagePlayer("You're an admin on this server!", sender);
-                        }
 
                         Thread ChalkInformer = new Thread(() => SendStagedChalkPackets(sender));
                         ChalkInformer.Start(); // send the player all the chalk data
@@ -90,13 +87,17 @@ namespace Cove.Server
                         {
                             WFPlayer thisPlayer = AllPlayers.Find(p => p.SteamId.m_SteamID == sender.m_SteamID);
                             if (thisPlayer == null)
-                            {
                                 Console.WriteLine("No fisher found for player instance!");
-                            }
                             else
                             {
                                 thisPlayer.InstanceID = actorID;
+                                allActors.Add(thisPlayer); // add the player to the actor list
                             }
+
+                        } else {
+                            WFActor cActor = new WFActor(actorID, type, Vector3.zero, Vector3.zero);
+                            cActor.owner = sender;
+                            allActors.Add(cActor);
                         }
 
                     }

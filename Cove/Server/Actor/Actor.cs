@@ -35,6 +35,8 @@ namespace Cove.Server.Actor
         public int despawnTime = -1;
         public bool despawn = true;
 
+        public CSteamID owner = new CSteamID(0); // 0 is the server
+
         public WFActor(long ID, string Type, Vector3 entPos, Vector3 entRot = null)
         {
             InstanceID = ID;

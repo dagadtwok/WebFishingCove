@@ -71,7 +71,9 @@ namespace Cove.Server
             sendPacketToPlayers(rainSpawnPacket); // spawn the rain!
             RainCloud cloud = new RainCloud(IId, pos);
             cloud.despawn = true;
+
             serverOwnedInstances.Add(cloud);
+            allActors.Add(cloud);
         }
 
         public WFActor spawnFish(string fishType = "fish_spawn")
@@ -130,6 +132,7 @@ namespace Cove.Server
 
             WFActor actor = new WFActor(IId, type, pos);
             serverOwnedInstances.Add(actor);
+            allActors.Add(actor);
 
             instanceSpacePrams["actor_type"] = type;
             instanceSpacePrams["at"] = pos;

@@ -14,16 +14,14 @@
    limitations under the License.
 */
 
-
 using Steamworks;
 using Cove.Server.Plugins;
-using Cove.GodotFormat;
 using Cove.Server.Actor;
 using Cove.Server.Utils;
 using Microsoft.Extensions.Hosting;
 using Cove.Server.HostedServices;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
+using Vector3 = Cove.GodotFormat.Vector3;
 
 namespace Cove.Server
 {
@@ -52,6 +50,7 @@ namespace Cove.Server
 
         public List<WFPlayer> AllPlayers = new();
         public List<WFActor> serverOwnedInstances = new();
+        public List<WFActor> allActors = new();
 
         Thread cbThread;
         Thread networkThread;
@@ -65,7 +64,6 @@ namespace Cove.Server
 
         public void Init()
         {
-
             cbThread = new(runSteamworksUpdate);
             networkThread = new(RunNetwork);
 
@@ -73,7 +71,6 @@ namespace Cove.Server
             string worldFile = $"{AppDomain.CurrentDomain.BaseDirectory}worlds/main_zone.tscn";
             if (!File.Exists(worldFile))
             {
-
                 Console.WriteLine("-- ERROR --");
                 Console.WriteLine("main_zone.tscn is missing!");
                 Console.WriteLine("please put a world file in the /worlds folder so the server may load it!");
@@ -287,11 +284,9 @@ namespace Cove.Server
                     WFPlayer newPlayer = new WFPlayer(userChanged, Username);
                     AllPlayers.Add(newPlayer);
 
-                    //Console.WriteLine($"{Username} has been assigned the fisherID: {newPlayer.FisherID}");
-
-                    foreach (PluginInstance plugin in loadedPlugins)
+                    foreach (PluginInstance p in loadedPlugins)
                     {
-                        plugin.plugin.onPlayerJoin(newPlayer);
+                        p.plugin.onPlayerJoin(newPlayer);
                     }
 
                     // check if the player is banned
@@ -310,25 +305,18 @@ namespace Cove.Server
 
                 if (stateChange.HasFlag(EChatMemberStateChange.k_EChatMemberStateChangeLeft) || stateChange.HasFlag(EChatMemberStateChange.k_EChatMemberStateChangeDisconnected))
                 {
-
                     string Username = SteamFriends.GetFriendPersonaName(userChanged);
 
                     Console.WriteLine($"{Username} [{userChanged.m_SteamID}] has left the game!");
                     updatePlayercount();
 
-                    foreach (var player in AllPlayers)
+                    WFPlayer leavingPlayer = AllPlayers.Find(p => p.SteamId.m_SteamID == userChanged.m_SteamID);
+                    foreach (PluginInstance plugin in loadedPlugins)
                     {
-                        if (player.SteamId.m_SteamID == userChanged.m_SteamID)
-                        {
-
-                            foreach (PluginInstance plugin in loadedPlugins)
-                            {
-                                plugin.plugin.onPlayerLeave(player);
-                            }
-
-                            AllPlayers.Remove(player);
-                        }
+                        plugin.plugin.onPlayerLeave(leavingPlayer);
                     }
+                    AllPlayers.Remove(leavingPlayer);
+                    allActors.RemoveAll(a => a.owner.m_SteamID == userChanged.m_SteamID);
                 }
             });
 
@@ -363,25 +351,17 @@ namespace Cove.Server
         private bool getBoolFromString(string str)
         {
             if (str.ToLower() == "true")
-            {
                 return true;
-            }
             else if (str.ToLower() == "false")
-            {
                 return false;
-            }
             else
-            {
                 return false;
-            }
         }
 
         void runSteamworksUpdate()
         {
             while (true)
-            {
                 SteamAPI.RunCallbacks();
-            }
         }
 
         void RunNetwork()
@@ -423,6 +403,13 @@ namespace Cove.Server
         {
 
             WFPlayer sender = AllPlayers.Find(p => p.SteamId == id);
+            if (sender == null)
+            {
+                Console.WriteLine($"[UNKNOWN] {id}: {message}");
+                // should probbaly kick the player here
+                return;
+            }
+
             Console.WriteLine($"[{sender.FisherID}] {sender.Username}: {message}");
 
             foreach (PluginInstance plugin in loadedPlugins)

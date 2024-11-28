@@ -14,7 +14,6 @@
    limitations under the License.
 */
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,21 +24,17 @@ namespace Cove.Server
 {
     public partial class CoveServer
     {
-        // purely for debug
+        // purely for debug, yes i know its 100% fucked
         public static void printStringDict(Dictionary<string, object> obj, string sub = "")
         {
             foreach (var kvp in obj)
             {
                 if (kvp.Value is Dictionary<string, object>)
-                {
                     printStringDict((Dictionary<string, object>)kvp.Value, sub + "." + kvp.Key);
-                }
                 else if (kvp.Value is Dictionary<int, object>)
-                {
                     printArray((Dictionary<int, object>)kvp.Value, sub + "." + kvp.Key);
-                } else {
+                else
                     Console.WriteLine($"{sub} {kvp.Key}: {kvp.Value}");
-                }
             }
         }
         public static void printArray(Dictionary<int, object> obj, string sub = "")
@@ -47,15 +42,11 @@ namespace Cove.Server
             foreach (var kvp in obj)
             {
                 if (kvp.Value is Dictionary<string, object>)
-                {
                     printStringDict((Dictionary<string, object>)kvp.Value, sub + "." + kvp.Key);
-                }
                 else if (kvp.Value is Dictionary<int, object>)
-                {
                     printArray((Dictionary<int, object>)kvp.Value, sub + "." + kvp.Key);
-                } else {
+                else
                     Console.WriteLine($"{sub} {kvp.Key}: {kvp.Value}");
-                }
             }
         }
     }
