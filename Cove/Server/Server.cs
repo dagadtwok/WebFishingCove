@@ -44,6 +44,7 @@ namespace Cove.Server
 
         public bool showErrorMessages = true;
         public bool friendsOnly = false;
+        public bool adminOnlyChalkPackets = false;
 
         List<string> Admins = new();
         public CSteamID SteamLobby;
@@ -163,6 +164,10 @@ namespace Cove.Server
 
                     case "hideJoinMessage":
                         displayJoinMessage = !getBoolFromString(config[key]);
+                        break;
+
+                    case "adminOnlyChalkPackets":
+                        adminOnlyChalkPackets = getBoolFromString(config[key]);
                         break;
 
                     default:

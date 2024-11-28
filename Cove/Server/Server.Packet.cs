@@ -160,6 +160,8 @@ namespace Cove.Server
 
                 case "chalk_packet":
                     {
+                        if (adminOnlyChalkPackets && !isPlayerAdmin(sender)) return;
+                        
                         long canvasID = (long)packetInfo["canvas_id"];
                         Chalk.ChalkCanvas canvas = chalkCanvas.Find(c => c.canvasID == canvasID);
                         
